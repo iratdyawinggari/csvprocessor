@@ -13,3 +13,11 @@ A concurrent CSV processing tool written in Go that:
 ```bash
 go mod init csvproc
 go run ./cmd/csvproc --dir ./data --workers 4
+
+## Testing
+
+Run all tests with race detection:
+
+```bash
+go test ./... -race
+```
