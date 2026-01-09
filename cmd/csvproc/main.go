@@ -37,11 +37,9 @@ func main() {
 	var readWG sync.WaitGroup
 	var workerWG sync.WaitGroup
 
-	// Start workers
 	workerWG.Add(*workers)
 	worker.StartPool(ctx, *workers, jobs, results, errs, tracker, &workerWG)
 
-	// Start CSV readers
 	for _, f := range files {
 		readWG.Add(1)
 		go func(file string) {
@@ -50,26 +48,21 @@ func main() {
 		}(f)
 	}
 
-	// Close jobs after readers finish
 	go func() {
 		readWG.Wait()
 		close(jobs)
 	}()
 
-	// Close results & errors after workers finish
 	go func() {
 		workerWG.Wait()
 		close(results)
 		close(errs)
 	}()
 
-	// Start progress printer
 	go tracker.Print()
 
-	// Collect results
 	summary := result.Collect(results, errs)
 
-	// Wait for tracker to finish
 	tracker.Wait()
 
 	fmt.Println("\nProcessing completed")
